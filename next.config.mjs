@@ -18,7 +18,8 @@ const nextConfig = {
   },
   env: {
     BACKEND_URL: "http://localhost",
-    BACKEND_PORT: 3001,
+    BACKEND_PORT: "3001",
+    TREASURY: "bc1paqrxew82mtlrfd4zfurt0evwadjj7w38rzte7nmzygcqkwq3qa7qcn5edy",
   },
 };
 

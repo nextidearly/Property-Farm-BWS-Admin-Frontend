@@ -8,6 +8,8 @@ import { BACKEND_URI } from "@/config";
 import { del, formatDate, post, shortAddress } from "@/utils";
 import Loader from "@/components/loader";
 import toast from "react-hot-toast";
+import Link from "next/link";
+import { FaArrowLeft } from "react-icons/fa";
 
 function Incomes({ id }) {
   const [loading, setLoading] = useState(true);
@@ -67,7 +69,7 @@ function Incomes({ id }) {
 
   return (
     <>
-      <div className="mt-">
+      <div>
         {loading ? (
           <div className="mt-4">
             <Loader />
@@ -202,7 +204,7 @@ function Holders({ id, supply }) {
 
   return (
     <>
-      <div className="mt-">
+      <div>
         {loading ? (
           <div className="mt-4">
             <Loader />
@@ -226,6 +228,24 @@ function Holders({ id, supply }) {
                   <div className="rounded-md">Percentage</div>
                   <div>Amount</div>
                 </div>
+
+                <div className="gap-2 p-1 rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-200 transition bg-white mb-1 items-center grid grid-cols-4">
+                  <div>1</div>
+                  <div className="text-sm ">
+                    {shortAddress(process.env.TREASURY, 6)}
+                  </div>
+                  <div className="text-sm">
+                    <div className="p-[0.5px] bg-gray-100 w-full rounded-full">
+                      <div
+                        style={{ width: `${5}%` }}
+                        className={`rounded-full bg-green-500 h-[6px]`}
+                      ></div>
+                    </div>
+                    <span className="text-[11px]">{5}% (admin)</span>
+                  </div>
+                  <div>{(supply * 0.05).toFixed(0)}</div>
+                </div>
+
                 {holders.map((data, index) => {
                   const widthPercentage = (
                     (data.amount / supply) *
@@ -233,7 +253,7 @@ function Holders({ id, supply }) {
                   ).toFixed(2);
                   return (
                     <div className="gap-2 p-1 rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-200 transition bg-white mb-1 items-center grid grid-cols-4">
-                      <div>{index + 1}</div>
+                      <div>{index + 2}</div>
                       <div className="text-sm ">
                         {shortAddress(data.owner, 6)}
                       </div>
@@ -290,7 +310,7 @@ function Inscriptions({ id }) {
 
   return (
     <>
-      <div className="mt-">
+      <div>
         {loading ? (
           <div className="mt-4">
             <Loader />
@@ -379,6 +399,13 @@ export default function Property({ params }) {
 
   return (
     <main className="container mx-auto py-4">
+      <Link
+        href="/"
+        className="btn bg-white flex gap-2 items-center w-fit mb-2"
+      >
+        <FaArrowLeft /> Back
+      </Link>
+
       {loading ? (
         <Loader />
       ) : (
@@ -465,7 +492,7 @@ export default function Property({ params }) {
       )}
 
       {!loading && (
-        <div className="bg-white p-2 flex w-fit mt-4 rounded-md gap-2 text-sm">
+        <div className="bg-white p-2 flex w-fit rounded-md gap-2 text-sm mt-4">
           <button
             className={`px-2 rounded-md ${
               type == "incomes" && "bg-orange-100 border border-orange-200"
@@ -494,7 +521,7 @@ export default function Property({ params }) {
               setType("inscriptions");
             }}
           >
-            Inscriptions
+            Shares
           </button>
         </div>
       )}
