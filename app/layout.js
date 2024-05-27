@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { useRef } from "react";
 import { makeStore } from "@/store/store";
 import { Provider } from "react-redux";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -30,6 +31,7 @@ export default function RootLayout({ children }) {
           </div>
 
           <div className="py-4 px-2">{children}</div>
+          <Toaster position="bottom-right" reverseOrder={false} />
         </Provider>
       </body>
     </html>

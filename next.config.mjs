@@ -11,14 +11,14 @@ const nextConfig = {
       {
         protocol: "http",
         hostname: "localhost",
-        port: "8000",
+        port: "3001",
         pathname: "**",
       },
     ],
   },
   env: {
     BACKEND_URL: "http://localhost",
-    BACKEND_PORT: 8000,
+    BACKEND_PORT: 3001,
   },
 };
 
