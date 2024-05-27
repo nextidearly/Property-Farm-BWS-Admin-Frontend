@@ -1,4 +1,6 @@
+import { BACKEND_URI } from "@/config";
 import BigNumber from "bignumber.js";
+const BASE_URL = BACKEND_URI;
 
 export const ellipsisOverflowedText = (
   str,
@@ -88,3 +90,53 @@ export function amountToSatoshis(val) {
   const num = new BigNumber(val);
   return num.multipliedBy(100000000).toNumber();
 }
+
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Something went wrong");
+  }
+  return response.json();
+};
+
+const getHeaders = (contentType = "application/json") => {
+  const headers = new Headers();
+  headers.append("Content-Type", contentType);
+  return headers;
+};
+
+export const get = async (url) => {
+  const response = await fetch(`${BASE_URL}${url}`, {
+    method: "GET",
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
+};
+
+export const post = async (url, data, isFormData = false) => {
+  const options = {
+    method: "POST",
+    headers: isFormData ? undefined : getHeaders(),
+    body: isFormData ? data : JSON.stringify(data),
+  };
+  const response = await fetch(`${BASE_URL}${url}`, options);
+  return handleResponse(response);
+};
+
+export const put = async (url, data, isFormData = false) => {
+  const options = {
+    method: "PUT",
+    headers: isFormData ? undefined : getHeaders(),
+    body: isFormData ? data : JSON.stringify(data),
+  };
+  const response = await fetch(`${BASE_URL}${url}`, options);
+  return handleResponse(response);
+};
+
+export const del = async (url) => {
+  const response = await fetch(`${BASE_URL}${url}`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+  return handleResponse(response);
+};

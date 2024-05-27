@@ -1,13 +1,13 @@
 import React, { useEffect } from "react";
-import openAPI from "../services/openAPI";
+import openAPI from "@/services/openAPI";
 import {
   updateAddress,
   updateBalance,
   updateBtcPrice,
   updateWallet,
-} from "./../store/slices/wallet";
+} from "@/store/slices/wallet";
 import { useDispatch } from "react-redux";
-import { useWallet } from "../store/hooks";
+import { useWallet } from "@/store/hooks";
 
 export const WalletContext = React.createContext();
 

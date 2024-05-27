@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BACKEND_URI } from "@/config";
+import Loader from "@/components/loader";
 
 export default function Home() {
   const router = useRouter();
@@ -61,20 +62,18 @@ export default function Home() {
 
   return (
     <main className="container mx-auto py-4">
-      <div className="flex justify-end mb-2">
-        <Link
-          href={"/new-property"}
-          className="bg-white py-2 px-6 rounded-md shadow-md hover:bg-orange-100 hover:border-orange-200 transition"
-        >
-          + Add & Launch New Property
-        </Link>
-      </div>
       {loading ? (
-        <div className="p-3 rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-200 transition bg-white">
-          Loading...
-        </div>
+        <Loader />
       ) : (
         <>
+          <div className="flex justify-end mb-2">
+            <Link
+              href={"/new-property"}
+              className="bg-white py-2 px-6 rounded-md shadow-md hover:bg-orange-100 hover:border-orange-200 transition"
+            >
+              + Add & Launch New Property
+            </Link>
+          </div>
           {properties.length ? (
             <>
               <div className="gap-2 p-3 rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-200 transition bg-white mb-1 items-center grid grid-cols-12">
@@ -110,9 +109,7 @@ export default function Home() {
                       {data.description}
                     </div>
                     <div className="hidden sm:inline-block">{data.price}</div>
-                    <div className="text-green-600 col-span-2 sm:col-span-1">
-                      ~$ {data.sold}
-                    </div>
+                    <div className="col-span-2 sm:col-span-1">{data.sold}</div>
                     <div className="sm:col-span-2 col-span-3 md:flex gap-1">
                       <button
                         onClick={(e) => {

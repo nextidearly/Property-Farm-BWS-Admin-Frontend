@@ -4,6 +4,8 @@ import { useState } from "react";
 import { BACKEND_URI } from "@/config";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { FaArrowLeft } from "react-icons/fa";
+import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
@@ -98,6 +100,9 @@ export default function Home() {
   return (
     <main className="container mx-auto py-4">
       <div className="mx-auto w-full max-w-[700px]">
+        <Link href="/" className="btn bg-white flex gap-2 items-center w-fit">
+          <FaArrowLeft /> Back
+        </Link>
         <div className="mt-3">
           <div>Title*</div>
           <input
