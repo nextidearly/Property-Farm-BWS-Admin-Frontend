@@ -252,7 +252,7 @@ function Holders({ id, supply }) {
                     100
                   ).toFixed(2);
                   return (
-                    <div className="gap-2 p-1 rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-200 transition bg-white mb-1 items-center grid grid-cols-4">
+                    <div key={index} className="gap-2 p-1 rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-200 transition bg-white mb-1 items-center grid grid-cols-4">
                       <div>{index + 2}</div>
                       <div className="text-sm ">
                         {shortAddress(data.owner, 6)}
