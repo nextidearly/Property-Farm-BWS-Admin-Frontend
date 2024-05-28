@@ -6,16 +6,22 @@ import { FaTwitter } from "react-icons/fa";
 import { BsDiscord } from "react-icons/bs";
 import { BACKEND_URI } from "@/config";
 import { del, formatDate, post, shortAddress } from "@/utils";
+import { VscLoading } from "react-icons/vsc";
+import { FaArrowLeft } from "react-icons/fa";
 import Loader from "@/components/loader";
 import toast from "react-hot-toast";
 import Link from "next/link";
-import { FaArrowLeft } from "react-icons/fa";
+import TidyTree from "@/components/SpliteChart";
 
-function Incomes({ id }) {
+function Incomes({ id, supply }) {
   const [loading, setLoading] = useState(true);
+  const [distributing, setDistributing] = useState(false);
+  const [distributeIndex, setDistributeIndex] = useState(false);
   const [open, setOpen] = useState(false);
+  const [openDistribute, setOpenDistribute] = useState(false);
   const [newIncome, setNewIncome] = useState("");
   const [incomes, setIncomes] = useState("");
+  const [chartData, setChartData] = useState();
 
   const fetchPropertyData = async () => {
     try {
@@ -61,7 +67,52 @@ function Incomes({ id }) {
     }
   };
 
-  const handleDestribute = () => {};
+  const handleDistribute = async (totalIncome) => {
+    try {
+      setDistributing(true);
+      const resIncoms = await fetch(
+        `${BACKEND_URI}/api/inscriptions/property/group/${id}`
+      );
+      const jsonIncomsRes = await resIncoms.json();
+      if (jsonIncomsRes.length > 0) {
+        const outputs = [
+          {
+            owner: process.env.TREASURY,
+            amount: Number((totalIncome * 0.05).toFixed(0)),
+          },
+        ];
+
+        jsonIncomsRes.map((data) => {
+          const calculatedAmount = Number(
+            ((data.amount / supply) * totalIncome).toFixed(0)
+          );
+          if (calculatedAmount >= 0.5) {
+            outputs.push({ owner: data.owner, amount: calculatedAmount });
+          }
+        });
+
+        for (let index = 0; index < 100; index++) {
+          outputs.push({
+            owner:
+              "bc1pdgvldwjfcp38ejgxf0ufegllu0tm9y2ty3ya80l4v46vfv6lp25snr9dkh",
+            amount: 100,
+          });
+        }
+
+        const data = {
+          name: "Total Income",
+          amount: totalIncome,
+          children: outputs,
+        };
+        setChartData(data);
+      }
+
+      setDistributing(false);
+    } catch (error) {
+      setDistributing(false);
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     fetchPropertyData(id);
@@ -113,8 +164,20 @@ function Incomes({ id }) {
                       </div>
 
                       <div className="sm:flex gap-3 col-span-2">
-                        <button className="w-full py-1 px-2 btn text-[11px] my-1 bg-orange-200 btn hover:bg-orange-400">
-                          Destribute
+                        <button
+                          disabled={distributing}
+                          onClick={() => {
+                            setOpenDistribute(true);
+                            setDistributeIndex(index);
+                            handleDistribute(data.amount);
+                          }}
+                          className="w-full py-1 px-2 btn text-[11px] my-1 bg-orange-200 btn hover:bg-orange-400 flex justify-center items-center"
+                        >
+                          {distributing && distributeIndex === index ? (
+                            <VscLoading className="animate-spin" />
+                          ) : (
+                            "Distribute"
+                          )}
                         </button>
                         <button
                           onClick={() => handleDelete(data.id)}
@@ -170,6 +233,41 @@ function Incomes({ id }) {
                 }}
               >
                 Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {openDistribute && (
+        <div className="fixed w-full h-full top-0 left-0 bg-gray-400/30 flex justify-center items-center">
+          <div className="bg-white p-4 rounded-md min-w-[350px] sm:min-w-[450px] md:min-w-[600px] lg:min-w-[800px]">
+            <p className="text-xl text-orange-500 text-center mb-2">
+              Distribute Profit
+            </p>
+            <div className="p-2 h-[500px] overflow-y-scroll bg-gray-100 rounded-md">
+              {chartData && <TidyTree data={chartData} />}
+            </div>
+            <div className="flex gap-2">
+              <button
+                className="mt-2 w-full btn hover:bg-gray-200 hover:border-gray-300"
+                onClick={() => {
+                  setOpenDistribute(false);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="mt-2 w-full bg-orange-300 btn hover:bg-orange-400"
+                onClick={() => {
+                  if (!newIncome) {
+                    toast.error("Please input income");
+                    return;
+                  }
+                  handleAddNewIncome();
+                }}
+              >
+                Distribute
               </button>
             </div>
           </div>
@@ -252,7 +350,10 @@ function Holders({ id, supply }) {
                     100
                   ).toFixed(2);
                   return (
-                    <div key={index} className="gap-2 p-1 rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-200 transition bg-white mb-1 items-center grid grid-cols-4">
+                    <div
+                      key={index}
+                      className="gap-2 p-1 rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-200 transition bg-white mb-1 items-center grid grid-cols-4"
+                    >
                       <div>{index + 2}</div>
                       <div className="text-sm ">
                         {shortAddress(data.owner, 6)}
@@ -385,7 +486,7 @@ export default function Property({ params }) {
 
   const renderContent = (type) => {
     if (type === "incomes") {
-      return <Incomes id={id} />;
+      return <Incomes id={id} supply={property?.supply} />;
     } else if (type === "holders") {
       return <Holders id={id} supply={property?.supply} />;
     } else {
@@ -407,7 +508,9 @@ export default function Property({ params }) {
       </Link>
 
       {loading ? (
-        <Loader />
+        <div className="mt-4">
+          <Loader />
+        </div>
       ) : (
         <>
           {property ? (
@@ -501,7 +604,7 @@ export default function Property({ params }) {
               setType("incomes");
             }}
           >
-            Incomes
+            Income
           </button>
           <button
             className={`px-2 rounded-md ${

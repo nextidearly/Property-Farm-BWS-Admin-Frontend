@@ -32,7 +32,7 @@ const AttachFileComponent = ({ setFile, file, inscriptionId, setError }) => {
     <>
       <div
         {...getRootProps()}
-        className="w-full min-h-[200px] flex justify-center items-center cs-border rounded-md my-2 bg-white shadow-md cursor-pointer text-gray-800"
+        className="w-full min-h-[200px] flex justify-center items-center cs-border rounded-md my-2 bg-white shadow-md cursor-pointer text-gray-500"
       >
         {loading ? (
           <AiOutlineLoading3Quarters className="animate-spin text-xl" />
