@@ -102,6 +102,7 @@ const handleResponse = async (response) => {
 const getHeaders = (contentType = "application/json") => {
   const headers = new Headers();
   headers.append("Content-Type", contentType);
+  headers.append("ngrok-skip-browser-warning", true);
   return headers;
 };
 

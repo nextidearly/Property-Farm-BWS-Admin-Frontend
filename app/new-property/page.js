@@ -83,9 +83,8 @@ export default function Home() {
         method: "POST",
         body: formData,
       });
-      const resJson = await res.json();
 
-      if (resJson.msg == "OK") {
+      if (res) {
         toast.success("Property have been successfully added and published!");
         router.push("/");
       }

@@ -14,7 +14,7 @@ const TidyTree = ({ data }) => {
     const sharesLength = data.children.length;
     let height = sharesLength * 14;
 
-    const margin = { top: 20, right: 120, bottom: 20, left: 120 };
+    const margin = { top: 20, right: 160, bottom: 20, left: 160 };
     const width = containerWidth - margin.left - margin.right;
 
     const svg = d3
@@ -70,7 +70,7 @@ const TidyTree = ({ data }) => {
       .style("fill", "#f68816")
       .text((d) => {
         const income = Math.floor(d.data.amount);
-        return `$${income}  ${
+        return `$${income} ${
           d.depth !== 0 ? ` (${shortAddress(d.data.owner, 3)})` : ``
         }`;
       });

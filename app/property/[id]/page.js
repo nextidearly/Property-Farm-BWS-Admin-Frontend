@@ -5,15 +5,17 @@ import { RiGlobalFill } from "react-icons/ri";
 import { FaTwitter } from "react-icons/fa";
 import { BsDiscord } from "react-icons/bs";
 import { BACKEND_URI } from "@/config";
-import { del, formatDate, post, shortAddress } from "@/utils";
+import { del, formatDate, get, post, shortAddress } from "@/utils";
 import { VscLoading } from "react-icons/vsc";
 import { FaArrowLeft } from "react-icons/fa";
 import Loader from "@/components/loader";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import TidyTree from "@/components/SpliteChart";
+import { useWallet } from "@/store/hooks";
 
 function Incomes({ id, supply }) {
+  const { price } = useWallet();
   const [loading, setLoading] = useState(true);
   const [distributing, setDistributing] = useState(false);
   const [distributeIndex, setDistributeIndex] = useState(false);
@@ -26,12 +28,8 @@ function Incomes({ id, supply }) {
   const fetchPropertyData = async () => {
     try {
       setLoading(true);
-      const resIncoms = await fetch(
-        `${BACKEND_URI}/api/propertyIncomes/property/${id}`
-      );
-      const jsonIncomsRes = await resIncoms.json();
-      console.log(jsonIncomsRes, id);
-      setIncomes(jsonIncomsRes);
+      const res = await get(`/api/propertyIncomes/property/${id}`);
+      setIncomes(res);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -66,15 +64,13 @@ function Incomes({ id, supply }) {
       console.log(error);
     }
   };
+  console.log(price);
 
   const handleDistribute = async (totalIncome) => {
     try {
       setDistributing(true);
-      const resIncoms = await fetch(
-        `${BACKEND_URI}/api/inscriptions/property/group/${id}`
-      );
-      const jsonIncomsRes = await resIncoms.json();
-      if (jsonIncomsRes.length > 0) {
+      const resIncoms = await get(`/api/inscriptions/property/group/${id}`);
+      if (resIncoms.length > 0) {
         const outputs = [
           {
             owner: process.env.TREASURY,
@@ -82,7 +78,7 @@ function Incomes({ id, supply }) {
           },
         ];
 
-        jsonIncomsRes.map((data) => {
+        resIncoms.map((data) => {
           const calculatedAmount = Number(
             ((data.amount / supply) * totalIncome).toFixed(0)
           );
@@ -91,13 +87,43 @@ function Incomes({ id, supply }) {
           }
         });
 
-        for (let index = 0; index < 100; index++) {
+        for (let index = 0; index < 20; index++) {
           outputs.push({
             owner:
               "bc1pdgvldwjfcp38ejgxf0ufegllu0tm9y2ty3ya80l4v46vfv6lp25snr9dkh",
-            amount: 100,
+            amount: 100 + index,
           });
         }
+
+        //------------------------------------------------------------------
+        // let totalOutput = 0;
+        // const feeAmount = (totalIncome * 0.05) / price;
+
+        // const outputs = [
+        //   {
+        //     owner: process.env.TREASURY,
+        //     amount: Math.floor(feeAmount * 100000000),
+        //   },
+        // ];
+
+        // totalOutput += outputs[0].amount;
+
+        // jsonIncomsRes.forEach((data) => {
+        //   const calculatedAmount = Math.floor(
+        //     (data.amount / supply) * totalIncome
+        //   );
+        //   if (calculatedAmount >= 0.5) {
+        //     const amountInSatoshis = Math.floor(
+        //       (calculatedAmount / price) * 100000000
+        //     );
+        //     outputs.push({
+        //       owner: data.owner,
+        //       amount: amountInSatoshis,
+        //     });
+        //     totalOutput += amountInSatoshis;
+        //   }
+        // });
+        //------------------------------------------------------------------
 
         const data = {
           name: "Total Income",
@@ -264,7 +290,7 @@ function Incomes({ id, supply }) {
                     toast.error("Please input income");
                     return;
                   }
-                  handleAddNewIncome();
+                  handleDistribute();
                 }}
               >
                 Distribute
@@ -284,11 +310,8 @@ function Holders({ id, supply }) {
   const fetchPropertyData = async () => {
     try {
       setLoading(true);
-      const resIncoms = await fetch(
-        `${BACKEND_URI}/api/inscriptions/property/group/${id}`
-      );
-      const jsonIncomsRes = await resIncoms.json();
-      setHolders(jsonIncomsRes);
+      const res = await get(`/api/inscriptions/property/group/${id}`);
+      setHolders(res);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -393,11 +416,8 @@ function Inscriptions({ id }) {
   const fetchPropertyData = async () => {
     try {
       setLoading(true);
-      const resIncoms = await fetch(
-        `${BACKEND_URI}/api/inscriptions/property/${id}`
-      );
-      const jsonIncomsRes = await resIncoms.json();
-      setInscriptions(jsonIncomsRes);
+      const res = await get(`/api/inscriptions/property/${id}`);
+      setInscriptions(res);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -473,9 +493,8 @@ export default function Property({ params }) {
   const fetchPropertyData = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${BACKEND_URI}/api/properties/${id}`);
-      const jsonRes = await res.json();
-      setProperty(jsonRes.data);
+      const res = await get(`/api/properties/${id}`);
+      setProperty(res.data);
       setLoading(false);
     } catch (error) {
       setLoading(false);

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BACKEND_URI } from "@/config";
 import Loader from "@/components/loader";
+import { del, get } from "@/utils";
 
 export default function Home() {
   const router = useRouter();
@@ -17,11 +18,9 @@ export default function Home() {
   const fetchProperties = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${BACKEND_URI}/api/properties`);
-      const jsonRes = await res.json();
-      if (jsonRes.msg == "OK") {
-        console.log(jsonRes.data);
-        setProperties(jsonRes.data);
+      const res = await get(`/api/properties`);
+      if (res.msg == "OK") {
+        setProperties(res.data);
       }
       setLoading(false);
     } catch (error) {
@@ -38,14 +37,7 @@ export default function Home() {
   const handleDelete = async (id) => {
     try {
       setDeleting(true);
-      const res = await fetch(`${BACKEND_URI}/api/properties/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const resJson = await res.json();
-      console.log(resJson);
+      await del(`/api/properties/${id}`);
       setDeleting(false);
       fetchProperties();
     } catch (error) {
@@ -57,8 +49,6 @@ export default function Home() {
   useEffect(() => {
     fetchProperties();
   }, []);
-
-  console.log(properties);
 
   return (
     <main className="container mx-auto py-4">
