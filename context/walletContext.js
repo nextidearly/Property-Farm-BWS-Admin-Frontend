@@ -40,11 +40,13 @@ const Wallet = ({ children }) => {
       await window.unisat.requestAccounts();
       const unisat = window.unisat;
       const [address] = await unisat.getAccounts();
+      const pubkey = await unisat.getPublicKey();
       dispatch(
         updateWallet({
           address: address,
           assetsAddress: address,
           connectedWallet: w,
+          pubkey: pubkey,
         })
       );
     } catch (error) {
@@ -54,19 +56,6 @@ const Wallet = ({ children }) => {
 
   const DisconnectWallet = () => {
     dispatch(updateAddress(""));
-  };
-
-  const depositCoin = async (w, payAddress, amount, feeRate) => {
-    let res;
-    try {
-      if (w === "unisat") {
-        res = await depositCoinonUnisat(payAddress, amount, feeRate);
-      }
-      return res;
-    } catch (error) {
-      console.log(error);
-      console.log(error.toString());
-    }
   };
 
   const depositCoinonUnisat = async (payAddress, amount, feeRate) => {
@@ -83,6 +72,21 @@ const Wallet = ({ children }) => {
       }
     } else {
       console.log("Please connect wallet");
+    }
+  };
+
+  const handleSignAndDepositWithUnisat = async (psbt, toSignInputs) => {
+    try {
+      const psbtHex = psbt.toHex();
+      let signedPSBTHex = await window.unisat.signPsbt(psbtHex, {
+        autoFinalized: true,
+        toSignInputs,
+      });
+
+      let tx = await unisat.pushPsbt(signedPSBTHex);
+      return tx;
+    } catch (error) {
+      throw Error(error);
     }
   };
 
@@ -104,7 +108,7 @@ const Wallet = ({ children }) => {
         UnisatWalletConnect,
         DisconnectWallet,
         depositCoinonUnisat,
-        depositCoin,
+        handleSignAndDepositWithUnisat
       }}
     >
       {children}

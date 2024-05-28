@@ -1,4 +1,3 @@
-// components/TidyTree.js
 import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import { shortAddress } from "@/utils";
@@ -7,6 +6,9 @@ const TidyTree = ({ data }) => {
   const svgRef = useRef();
 
   useEffect(() => {
+    const svgElement = d3.select(svgRef.current);
+    svgElement.selectAll("*").remove(); // Clear existing SVG elements
+
     const container = svgRef.current.parentElement;
     const containerWidth = container.clientWidth;
 
@@ -17,8 +19,7 @@ const TidyTree = ({ data }) => {
     const margin = { top: 20, right: 160, bottom: 20, left: 160 };
     const width = containerWidth - margin.left - margin.right;
 
-    const svg = d3
-      .select(svgRef.current)
+    const svg = svgElement
       .attr("width", "100%")
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
@@ -75,10 +76,9 @@ const TidyTree = ({ data }) => {
         }`;
       });
 
-    // // Add scrollbar if needed
-    // if (height > maxContainerHeight) {
-    //   container.style.overflowY = "scroll";
-    // }
+    return () => {
+      svgElement.selectAll("*").remove(); // Cleanup SVG elements on unmount
+    };
   }, [data]);
 
   return <svg ref={svgRef}></svg>;

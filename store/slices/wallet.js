@@ -6,6 +6,7 @@ const initialState = {
     assetsAddress: "",
     price: 65000,
     connectedWallet: "",
+    pubkey: "",
     balance: {
       address: "",
       satoshi: 0,
@@ -69,6 +70,7 @@ export const wallet = createSlice({
       state.value.address = action.payload.address;
       state.value.assetsAddress = action.payload.assetsAddress;
       state.value.connectedWallet = action.payload.connectedWallet;
+      state.value.pubkey = action.payload.pubkey;
     },
   },
 });

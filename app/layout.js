@@ -5,9 +5,10 @@ import { useRef } from "react";
 import { makeStore } from "@/store/store";
 import { Provider } from "react-redux";
 import { Toaster } from "react-hot-toast";
-import "./globals.css";
-import WalletConnect from "@/components/walletConnect";
 import WalletContext from "@/context/walletContext";
+import dynamic from "next/dynamic";
+const WalletConnect = dynamic(() => import("./../components/walletConnect"));
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 

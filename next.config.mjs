@@ -8,6 +8,13 @@ const nextConfig = {
     BACKEND_PORT: "",
     TREASURY: "bc1paqrxew82mtlrfd4zfurt0evwadjj7w38rzte7nmzygcqkwq3qa7qcn5edy",
   },
+  webpack: function (config, options) {
+    config.experiments = { asyncWebAssembly: true, layers: true };
+    if (!options.isServer) {
+      config.resolve.alias["@sentry/node"] = "@sentry/browser";
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
