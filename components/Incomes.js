@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
-import { del, formatDate, get, post } from "@/utils";
+import { del, formatDate, get, post, put, shortAddress } from "@/utils";
 import {
   getAddressType,
   toPsbt,
@@ -33,7 +33,7 @@ export default function Incomes({ id, supply }) {
   const [incomes, setIncomes] = useState("");
   const [chartData, setChartData] = useState();
 
-  const fetchPropertyData = async () => {
+  const fetchPropertyIncomeData = async () => {
     try {
       setLoading(true);
       const res = await get(`/api/propertyIncomes/property/${id}`);
@@ -54,7 +54,7 @@ export default function Incomes({ id, supply }) {
       const res = await post(`/api/propertyIncomes`, data);
       if (res) {
         toast.success("Added successfully");
-        fetchPropertyData();
+        fetchPropertyIncomeData();
         setOpen(false);
       }
     } catch (error) {
@@ -66,7 +66,7 @@ export default function Incomes({ id, supply }) {
     try {
       const res = await del(`/api/propertyIncomes/${id}`);
       if (res) {
-        fetchPropertyData();
+        fetchPropertyIncomeData();
       }
     } catch (error) {
       console.log(error);
@@ -126,11 +126,12 @@ export default function Incomes({ id, supply }) {
       let totalOutputValue = 0;
 
       const btc_utxos = await openAPI.getAddressUtxo(address);
-      if (!btc_utxos.length) {
-        setError(`Insufficient btc balance (1)`);
-        setDistributing(false);
-        return;
-      }
+      // if (!btc_utxos.length) {
+      //   setError(`Insufficient btc balance (1)`);
+      //   setDistributing(false);
+      // setDistributeIndex("")
+      //   return;
+      // }
 
       const AtomicalBtcUtxos = btc_utxos.map((v) => {
         return {
@@ -167,11 +168,12 @@ export default function Incomes({ id, supply }) {
         });
       });
 
-        if (totalInputValue <= chartData.amount) {
-          setError(`Insufficient btc balance (2)`);
-          setDistributing(false);
-          return;
-        }
+      // if (totalInputValue <= chartData.amount) {
+      //   setError(`Insufficient btc balance (2)`);
+      //   setDistributing(false);
+      // setDistributeIndex("")
+      //   return;
+      // }
 
       chartData.children.map((data) => {
         outputs.push({
@@ -190,37 +192,76 @@ export default function Incomes({ id, supply }) {
 
       const changeValue = totalInputValue - totalOutputValue - fee;
 
-      if (changeValue < 0) {
-        setError(`Your wallet address doesn't have enough funds to deposit your brc20 token.
-            You have: ${satoshisToBTC(totalInputValue)}
-            Required: ${satoshisToBTC(totalInputValue - changeValue)}
-            Missing: ${satoshisToBTC(-changeValue)}`);
+      // if (changeValue < 0) {
+      //   setError(`Your wallet address doesn't have enough funds to deposit your brc20 token.
+      //       You have: ${satoshisToBTC(totalInputValue)}
+      //       Required: ${satoshisToBTC(totalInputValue - changeValue)}
+      //       Missing: ${satoshisToBTC(-changeValue)}`);
 
-        setDistributing(false);
-        return;
-      }
+      //   setDistributing(false);
+      // setDistributeIndex("")
+      //   return;
+      // }
 
-      outputs.push({
-        address: address,
-        value: changeValue,
-      });
+      // outputs.push({
+      //   address: address,
+      //   value: changeValue,
+      // });
 
       const psbt = await toPsbt(inputs, outputs);
 
       setDistributing(false);
-      const tx = await handleSignAndDepositWithUnisat(
-        psbt,
-        toSignInputsForUnisat
+      // const tx = await handleSignAndDepositWithUnisat(
+      //   psbt,
+      //   toSignInputsForUnisat
+      // );
+
+      await handleSaveDistribution(
+        "7530a99e6fb828281035a7549c0927f72a47d74359feab655b6a5954febbe74f"
       );
-      console.log(tx);
+      fetchPropertyIncomeData();
+      setOpenDistribute(false);
+      setDistributeIndex("");
+      setDistributing(false);
+      toast.success("Successfully distributed");
     } catch (error) {
+      setDistributeIndex("");
       setDistributing(false);
       setError(error.toString());
     }
   };
 
+  const handleSaveDistribution = async (tx) => {
+    try {
+      const updated = await put(
+        `/api/propertyIncomes/${incomes[distributeIndex].id}`,
+        {
+          transactionId: tx,
+        }
+      );
+
+      if (!updated) {
+        throw new Error(
+          "Distribution is not saved correctly, contact the developer."
+        );
+      }
+
+      const userIncomePromises = chartData.children.map((data) => {
+        return post(`/api/userIncomes`, {
+          amount: data.amount,
+          address: data.owner,
+          property: id,
+        });
+      });
+
+      await Promise.all(userIncomePromises);
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
   useEffect(() => {
-    fetchPropertyData(id);
+    fetchPropertyIncomeData();
   }, [id]);
 
   return (
@@ -253,15 +294,24 @@ export default function Incomes({ id, supply }) {
                   return (
                     <div
                       key={index}
-                      className="gap-2 p-1 rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-100 transition bg-white mb-1 items-center grid grid-cols-6"
+                      className="gap-2 p-1 text-sm rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-100 transition bg-white mb-1 items-center grid grid-cols-6"
                     >
                       <div>{index + 1}</div>
 
-                      <div className="text-sm text-green-500">
-                        ~$ {data.amount}
-                      </div>
-                      <div className="text-sm">
-                        {data.status ? "" : "Destributed"}
+                      <div className="text-green-500">~$ {data.amount}</div>
+                      <div>
+                        {data.transactionId == "" ? (
+                          "Not distributed"
+                        ) : (
+                          <a
+                            href={`https://mempool.space/tx/${data.transactionId}`}
+                            target="_blank"
+                            onClick={(e) => e.stopPropagation()}
+                            className="underline hover:text-orange-600"
+                          >
+                            {shortAddress(data.transactionId, 6)}
+                          </a>
+                        )}
                       </div>
 
                       <div className="text-[11px]">

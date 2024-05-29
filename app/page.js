@@ -59,14 +59,14 @@ export default function Home() {
           <div className="flex justify-end mb-2">
             <Link
               href={"/new-property"}
-              className="bg-white py-2 px-6 rounded-md shadow-md hover:bg-orange-100 hover:border-orange-200 transition"
+              className="bg-white py-2 px-6 text-sm rounded-md shadow-md hover:bg-orange-100 hover:border-orange-200 transition"
             >
               + Add & Launch New Property
             </Link>
           </div>
           {properties.length ? (
             <>
-              <div className="gap-2 p-3 rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-200 transition bg-white mb-1 items-center grid grid-cols-12">
+              <div className="gap-2 p-3 text-sm rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-200 transition bg-white mb-1 items-center grid grid-cols-12">
                 <div>No</div>
                 <div className="rounded-md md:col-span-2 col-span-3">Logo</div>
                 <div className="md:col-span-2 col-span-3">Title</div>
@@ -81,7 +81,7 @@ export default function Home() {
                 return (
                   <div
                     key={index}
-                    className="gap-2 p-3 text-sm rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-200 transition bg-white mb-1 items-center grid grid-cols-12 cursor-pointer"
+                    className="gap-2 p-3 text-[12px] rounded-md border border-gray-100 text-center hover:bg-orange-100 hover:border-orange-200 transition bg-white mb-1 items-center grid grid-cols-12 cursor-pointer"
                     onClick={() => {
                       handleGoToPropertyDetails(data.id);
                     }}
@@ -99,14 +99,23 @@ export default function Home() {
                       {data.description}
                     </div>
                     <div className="hidden sm:inline-block">{data.price}</div>
-                    <div className="col-span-2 sm:col-span-1">{data.sold}</div>
+                    <div className="col-span-2 sm:col-span-1">
+                      {data.sold}/{data.supply} <br />
+                      {data.sold / data.supply === 1 ? (
+                        <span className="text-green-500 font-bold">
+                          (sold out)
+                        </span>
+                      ) : (
+                        `(${((data.sold / data.supply) * 100).toFixed(2)}%)`
+                      )}
+                    </div>
                     <div className="sm:col-span-2 col-span-3 md:flex gap-1">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(data.id);
                         }}
-                        className="w-full btn hover:bg-orange-300 hover:border-orange-400 text-sm md:px-2 p-1 mx-auto"
+                        className="w-full btn hover:bg-orange-300 hover:border-orange-400 md:px-2 p-1 mx-auto"
                       >
                         {deleting ? "Deleting.." : "Delete"}
                       </button>
