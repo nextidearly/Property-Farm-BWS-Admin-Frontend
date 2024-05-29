@@ -1,7 +1,13 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
-import { calculateFee, del, formatDate, get, post } from "@/utils";
-import { getAddressType, toPsbt, utxoToInput } from "@/utils/payment";
+import { del, formatDate, get, post } from "@/utils";
+import {
+  getAddressType,
+  toPsbt,
+  utxoToInput,
+  satoshisToBTC,
+  calculateFee,
+} from "@/utils/payment";
 import { VscLoading } from "react-icons/vsc";
 import Loader from "@/components/loader";
 import toast from "react-hot-toast";
@@ -121,7 +127,7 @@ export default function Incomes({ id, supply }) {
 
       const btc_utxos = await openAPI.getAddressUtxo(address);
       if (!btc_utxos.length) {
-        setError(`Insufficient btc balance`);
+        setError(`Insufficient btc balance (1)`);
         setDistributing(false);
         return;
       }
@@ -161,11 +167,11 @@ export default function Incomes({ id, supply }) {
         });
       });
 
-      //   if (totalInputValue <= chartData.amount) {
-      //     setError(`Insufficient btc balance (2)`);
-      //     setDistributing(false);
-      //     return;
-      //   }
+        if (totalInputValue <= chartData.amount) {
+          setError(`Insufficient btc balance (2)`);
+          setDistributing(false);
+          return;
+        }
 
       chartData.children.map((data) => {
         outputs.push({

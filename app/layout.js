@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { makeStore } from "@/store/store";
 import { Provider } from "react-redux";
 import { Toaster } from "react-hot-toast";
+import NextNProgress from "nextjs-progressbar";
 import WalletContext from "@/context/walletContext";
 import dynamic from "next/dynamic";
 const WalletConnect = dynamic(() => import("./../components/walletConnect"));
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <Provider store={storeRef.current}>
           <WalletContext>
+            <NextNProgress color="#ffffff" />
             <div className="w-full justify-center items-center py-4 bg-white shadow-md px-2">
               <div className="container mx-auto flex justify-between items-center">
                 <Link href="/" className="font-bold text-lg">

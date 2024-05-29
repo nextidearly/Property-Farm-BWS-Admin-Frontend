@@ -138,6 +138,10 @@ export function utxoToInput(utxo, estimate) {
   }
 }
 
+export const satoshisToBTC = (amount) => {
+  return amount / 100000000;
+};
+
 export function toPsbt(inputs, outputs) {
   const psbt = new bitcoin.Psbt({ network: bitcoin.networks.bitcoin });
   inputs.forEach((v, index) => {
@@ -165,3 +169,13 @@ export function toPsbt(inputs, outputs) {
   });
   return psbt;
 }
+
+export const calculateFee = (vins, vouts, recommendedFeeRate) => {
+  const baseTxSize = 10;
+  const inSize = 50;
+  const outSize = 28;
+
+  const txSize = baseTxSize + vins * inSize + vouts * outSize + 1 * outSize;
+  const fee = txSize * recommendedFeeRate;
+  return Number(fee.toFixed(0));
+};
