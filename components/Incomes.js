@@ -126,12 +126,12 @@ export default function Incomes({ id, supply }) {
       let totalOutputValue = 0;
 
       const btc_utxos = await openAPI.getAddressUtxo(address);
-      // if (!btc_utxos.length) {
-      //   setError(`Insufficient btc balance (1)`);
-      //   setDistributing(false);
-      // setDistributeIndex("")
-      //   return;
-      // }
+      if (!btc_utxos.length) {
+        setError(`Insufficient btc balance (1)`);
+        setDistributing(false);
+        setDistributeIndex("");
+        return;
+      }
 
       const AtomicalBtcUtxos = btc_utxos.map((v) => {
         return {
@@ -168,12 +168,12 @@ export default function Incomes({ id, supply }) {
         });
       });
 
-      // if (totalInputValue <= chartData.amount) {
-      //   setError(`Insufficient btc balance (2)`);
-      //   setDistributing(false);
-      // setDistributeIndex("")
-      //   return;
-      // }
+      if (totalInputValue <= chartData.amount) {
+        setError(`Insufficient btc balance (2)`);
+        setDistributing(false);
+        setDistributeIndex("");
+        return;
+      }
 
       chartData.children.map((data) => {
         outputs.push({
@@ -192,33 +192,31 @@ export default function Incomes({ id, supply }) {
 
       const changeValue = totalInputValue - totalOutputValue - fee;
 
-      // if (changeValue < 0) {
-      //   setError(`Your wallet address doesn't have enough funds to deposit your brc20 token.
-      //       You have: ${satoshisToBTC(totalInputValue)}
-      //       Required: ${satoshisToBTC(totalInputValue - changeValue)}
-      //       Missing: ${satoshisToBTC(-changeValue)}`);
+      if (changeValue < 0) {
+        setError(`Your wallet address doesn't have enough funds to deposit your brc20 token.
+            You have: ${satoshisToBTC(totalInputValue)}
+            Required: ${satoshisToBTC(totalInputValue - changeValue)}
+            Missing: ${satoshisToBTC(-changeValue)}`);
 
-      //   setDistributing(false);
-      // setDistributeIndex("")
-      //   return;
-      // }
+        setDistributing(false);
+        setDistributeIndex("");
+        return;
+      }
 
-      // outputs.push({
-      //   address: address,
-      //   value: changeValue,
-      // });
+      outputs.push({
+        address: address,
+        value: changeValue,
+      });
 
       const psbt = await toPsbt(inputs, outputs);
 
       setDistributing(false);
-      // const tx = await handleSignAndDepositWithUnisat(
-      //   psbt,
-      //   toSignInputsForUnisat
-      // );
-
-      await handleSaveDistribution(
-        "7530a99e6fb828281035a7549c0927f72a47d74359feab655b6a5954febbe74f"
+      const tx = await handleSignAndDepositWithUnisat(
+        psbt,
+        toSignInputsForUnisat
       );
+
+      await handleSaveDistribution(tx);
       fetchPropertyIncomeData();
       setOpenDistribute(false);
       setDistributeIndex("");
