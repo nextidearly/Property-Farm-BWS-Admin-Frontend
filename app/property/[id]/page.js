@@ -157,7 +157,7 @@ function Inscriptions({ id }) {
               </button>
             </div>
             {inscriptons.length ? (
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
                 {inscriptons.map((data, index) => {
                   return (
                     <div
@@ -166,11 +166,11 @@ function Inscriptions({ id }) {
                     >
                       <iframe
                         className="w-full rounded-md"
-                        src={`https://ordiscan.com/content/${data.inscriptionId}`}
+                        src={`https://ordinals.com/preview/${data.inscriptionId}`}
                       ></iframe>
-                      <div className="mt-2 flex justify-center">
+                      <div className="mt-2 flex justify-center items-center">
                         <a
-                          href={`https://ordiscan.com/content/${data.inscriptionId}`}
+                          href={`https://ordinals.com/preview/${data.inscriptionId}`}
                           target="_blank"
                           className="underline hover:text-orange-500"
                         >
