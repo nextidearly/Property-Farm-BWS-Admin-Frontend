@@ -73,7 +73,7 @@ export default function Home() {
     formData.append("inscriptionId", inscriptionId);
     formData.append("sold", 0);
     formData.append("imageURL", ""); // Assuming you'll handle this in the backend
-    formData.append("status", 1);
+    formData.append("status", 0);
     formData.append("startsIn", Date.now());
     formData.append("file", file);
 

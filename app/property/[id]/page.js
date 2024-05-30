@@ -74,7 +74,7 @@ function Holders({ id, supply }) {
                     </div>
                     <span className="text-[11px]">{5}% (admin)</span>
                   </div>
-                  <div>{(supply * 0.05).toFixed(0)}</div>
+                  <div>--</div>
                 </div>
 
                 {holders.map((data, index) => {
