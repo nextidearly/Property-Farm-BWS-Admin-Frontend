@@ -90,10 +90,9 @@ export default function Incomes({ id, supply }) {
           },
         ];
         totalOutput += sats;
-        console.log(outputs);
 
         resIncoms.map((data) => {
-          const usdAmount1 = (data.amount / supply) * totalIncome;
+          const usdAmount1 = (data.amount / supply) * (totalIncome - usdAmount);
           const sats1 = Math.floor((usdAmount1 / price) * 10 ** 8);
           // if (usdAmount >= 0.5) {
           outputs.push({
