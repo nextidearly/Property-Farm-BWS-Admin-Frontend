@@ -70,8 +70,8 @@ const TidyTree = ({ data }) => {
       .style("font-size", "12px")
       .style("fill", "#f68816")
       .text((d) => {
-        const income =d.data.amount;
-        return `$${income} ${
+        const income = d.data.amount;
+        return `$${income.toFixed(2)} ${
           d.depth !== 0 ? ` (${shortAddress(d.data.owner, 3)})` : ``
         }`;
       });
