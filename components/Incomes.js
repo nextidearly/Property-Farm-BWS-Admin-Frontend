@@ -78,9 +78,10 @@ export default function Incomes({ id, supply }) {
       setLoadingDataForDistributing(true);
       const resIncoms = await get(`/api/inscriptions/property/group/${id}`);
       if (resIncoms.length > 0) {
+        console.log(resIncoms);
         let totalOutput = 0;
-        const usdAmount = Math.floor(totalIncome * 0.05);
-        const sats = Math.floor((usdAmount / price) * 100000000);
+        const usdAmount = totalIncome * 0.05;
+        const sats = Math.floor((usdAmount / price) * 10 ** 8);
         const outputs = [
           {
             owner: process.env.TREASURY,
@@ -89,19 +90,21 @@ export default function Incomes({ id, supply }) {
           },
         ];
         totalOutput += sats;
+        console.log(outputs);
 
         resIncoms.map((data) => {
-          const usdAmount = Math.floor((data.amount / supply) * totalIncome);
-          const sats = Math.floor((usdAmount / price) * 100000000);
-          if (usdAmount >= 0.5) {
-            outputs.push({
-              owner: data.owner,
-              amount: usdAmount,
-              sats: sats,
-            });
-            totalOutput += sats;
-          }
+          const usdAmount1 = (data.amount / supply) * totalIncome;
+          const sats1 = Math.floor((usdAmount1 / price) * 10 ** 8);
+          // if (usdAmount >= 0.5) {
+          outputs.push({
+            owner: data.owner,
+            amount: usdAmount1,
+            sats: sats1,
+          });
+          totalOutput += sats1;
+          // }
         });
+        console.log(outputs);
 
         const data = {
           name: "Total Income",
