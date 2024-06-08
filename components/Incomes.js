@@ -1,20 +1,20 @@
-"use client";
-import { useContext, useEffect, useState } from "react";
-import { del, formatDate, get, post, put, shortAddress } from "@/utils";
+'use client';
+import { useContext, useEffect, useState } from 'react';
+import { del, formatDate, get, post, put, shortAddress } from '@/utils';
 import {
   getAddressType,
   toPsbt,
   utxoToInput,
   satoshisToBTC,
   calculateFee,
-} from "@/utils/payment";
-import { VscLoading } from "react-icons/vsc";
-import Loader from "@/components/loader";
-import toast from "react-hot-toast";
-import TidyTree from "@/components/SpliteChart";
-import { useWallet } from "@/store/hooks";
-import openAPI from "@/services/openAPI";
-import { WalletContext } from "@/context/walletContext";
+} from '@/utils/payment';
+import { VscLoading } from 'react-icons/vsc';
+import Loader from '@/components/loader';
+import toast from 'react-hot-toast';
+import TidyTree from '@/components/SpliteChart';
+import { useWallet } from '@/store/hooks';
+import openAPI from '@/services/openAPI';
+import { WalletContext } from '@/context/walletContext';
 
 export default function Incomes({ id, supply }) {
   const { price, address, pubkey } = useWallet();
@@ -24,13 +24,13 @@ export default function Incomes({ id, supply }) {
   const [distributing, setDistributing] = useState(false);
   const [loadingDataForDistributing, setLoadingDataForDistributing] =
     useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const [distributeIndex, setDistributeIndex] = useState(false);
   const [open, setOpen] = useState(false);
   const [openDistribute, setOpenDistribute] = useState(false);
-  const [newIncome, setNewIncome] = useState("");
-  const [incomes, setIncomes] = useState("");
+  const [newIncome, setNewIncome] = useState('');
+  const [incomes, setIncomes] = useState('');
   const [chartData, setChartData] = useState();
 
   const fetchPropertyIncomeData = async () => {
@@ -53,7 +53,7 @@ export default function Incomes({ id, supply }) {
       };
       const res = await post(`/api/propertyIncomes`, data);
       if (res) {
-        toast.success("Added successfully");
+        toast.success('Added successfully');
         fetchPropertyIncomeData();
         setOpen(false);
       }
@@ -106,9 +106,10 @@ export default function Incomes({ id, supply }) {
         console.log(outputs);
 
         const data = {
-          name: "Total Income",
+          name: 'Total Income',
           amount: totalIncome,
           children: outputs,
+          totalOutput: totalOutput,
         };
         setChartData(data);
         setLoadingDataForDistributing(false);
@@ -131,7 +132,7 @@ export default function Incomes({ id, supply }) {
       if (!btc_utxos.length) {
         setError(`Insufficient btc balance (1)`);
         setDistributing(false);
-        setDistributeIndex("");
+        setDistributeIndex('');
         return;
       }
 
@@ -161,19 +162,32 @@ export default function Incomes({ id, supply }) {
       let inputs = [];
       let outputs = [];
 
-      AtomicalBtcUtxos.map((utxo, i) => {
+      const recommendedFee = await openAPI.getFeeSummary();
+      const fee = await calculateFee(
+        10,
+        chartData.children + 1,
+        recommendedFee?.list[0].feeRate
+      );
+
+      let paddingValue = recommendedFee?.list[0].feeRate * 1000 + fee;
+
+      for (const [i, utxo] of AtomicalBtcUtxos.entries()) {
+        if (totalInputValue > paddingValue + chartData.totalOutput) {
+          break;
+        }
+
         totalInputValue += utxo.satoshis;
         inputs.push(utxoToInput(utxo, false));
         toSignInputsForUnisat.push({
           index: i,
           publicKey: utxo.pubkey,
         });
-      });
+      }
 
       if (totalInputValue <= chartData.amount) {
         setError(`Insufficient btc balance (2)`);
         setDistributing(false);
-        setDistributeIndex("");
+        setDistributeIndex('');
         return;
       }
 
@@ -185,13 +199,6 @@ export default function Incomes({ id, supply }) {
         totalOutputValue += data.sats;
       });
 
-      const recommendedFee = await openAPI.getFeeSummary();
-      const fee = await calculateFee(
-        inputs.length,
-        outputs.length + 1,
-        recommendedFee?.list[0].feeRate
-      );
-
       const changeValue = totalInputValue - totalOutputValue - fee;
 
       if (changeValue < 0) {
@@ -201,7 +208,7 @@ export default function Incomes({ id, supply }) {
             Missing: ${satoshisToBTC(-changeValue)}`);
 
         setDistributing(false);
-        setDistributeIndex("");
+        setDistributeIndex('');
         return;
       }
 
@@ -221,11 +228,11 @@ export default function Incomes({ id, supply }) {
       await handleSaveDistribution(tx);
       fetchPropertyIncomeData();
       setOpenDistribute(false);
-      setDistributeIndex("");
+      setDistributeIndex('');
       setDistributing(false);
-      toast.success("Successfully distributed");
+      toast.success('Successfully distributed');
     } catch (error) {
-      setDistributeIndex("");
+      setDistributeIndex('');
       setDistributing(false);
       setError(error.toString());
     }
@@ -242,7 +249,7 @@ export default function Incomes({ id, supply }) {
 
       if (!updated) {
         throw new Error(
-          "Distribution is not saved correctly, contact the developer."
+          'Distribution is not saved correctly, contact the developer.'
         );
       }
 
@@ -300,8 +307,8 @@ export default function Incomes({ id, supply }) {
 
                       <div className="text-green-500">~$ {data.amount}</div>
                       <div>
-                        {data.transactionId == "" ? (
-                          "Not distributed"
+                        {data.transactionId == '' ? (
+                          'Not distributed'
                         ) : (
                           <a
                             href={`https://mempool.space/tx/${data.transactionId}`}
@@ -332,7 +339,7 @@ export default function Incomes({ id, supply }) {
                           distributeIndex === index ? (
                             <VscLoading className="animate-spin" />
                           ) : (
-                            "Distribute"
+                            'Distribute'
                           )}
                         </button>
                         <button
@@ -382,7 +389,7 @@ export default function Incomes({ id, supply }) {
                 className="mt-2 w-full bg-orange-200 btn hover:bg-orange-400"
                 onClick={() => {
                   if (!newIncome) {
-                    toast.error("Please input income");
+                    toast.error('Please input income');
                     return;
                   }
                   handleAddNewIncome();
@@ -406,7 +413,7 @@ export default function Incomes({ id, supply }) {
               <div
                 className={`p-2 h-[500px] overflow-y-scroll bg-gray-100 rounded-md ${
                   chartData.children.length <= 25 &&
-                  "flex justify-center items-center"
+                  'flex justify-center items-center'
                 }`}
               >
                 <TidyTree
@@ -436,11 +443,11 @@ export default function Incomes({ id, supply }) {
                 className="mt-2 w-full bg-orange-300 btn hover:bg-orange-400 flex justify-center items-center"
                 onClick={() => {
                   if (!address) {
-                    toast.error("Please connect your wallet.");
+                    toast.error('Please connect your wallet.');
                     return;
                   }
                   if (!chartData) {
-                    toast.error("No distribute data.");
+                    toast.error('No distribute data.');
                     return;
                   }
                   handleDistribute();
@@ -449,7 +456,7 @@ export default function Incomes({ id, supply }) {
                 {distributing ? (
                   <VscLoading className="animate-spin" />
                 ) : (
-                  "Distribute"
+                  'Distribute'
                 )}
               </button>
             </div>
