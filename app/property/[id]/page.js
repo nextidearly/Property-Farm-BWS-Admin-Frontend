@@ -1,21 +1,21 @@
-"use client";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { RiGlobalFill } from "react-icons/ri";
-import { FaTwitter } from "react-icons/fa";
-import { BsDiscord } from "react-icons/bs";
-import { BACKEND_URI } from "@/config";
-import { get, shortAddress } from "@/utils";
-import { FaArrowLeft } from "react-icons/fa";
-import Loader from "@/components/loader";
-import Link from "next/link";
-import dynamic from "next/dynamic";
+'use client';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { RiGlobalFill } from 'react-icons/ri';
+import { FaTwitter } from 'react-icons/fa';
+import { BsDiscord } from 'react-icons/bs';
+import { BACKEND_URI } from '@/config';
+import { get, shortAddress } from '@/utils';
+import { FaArrowLeft } from 'react-icons/fa';
+import Loader from '@/components/loader';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
 
-const Incomes = dynamic(() => import("./../../../components/Incomes"));
+const Incomes = dynamic(() => import('./../../../components/Incomes'));
 
 function Holders({ id, supply }) {
   const [loading, setLoading] = useState(true);
-  const [holders, setHolders] = useState("");
+  const [holders, setHolders] = useState('');
 
   const fetchPropertyData = async () => {
     try {
@@ -42,7 +42,7 @@ function Holders({ id, supply }) {
           </div>
         ) : (
           <>
-            {" "}
+            {' '}
             <div className="flex justify-end mb-2">
               <button
                 onClick={fetchPropertyData}
@@ -121,7 +121,7 @@ function Holders({ id, supply }) {
 
 function Inscriptions({ id }) {
   const [loading, setLoading] = useState(true);
-  const [inscriptons, setInscriptions] = useState("");
+  const [inscriptons, setInscriptions] = useState('');
 
   const fetchPropertyData = async () => {
     try {
@@ -196,9 +196,9 @@ function Inscriptions({ id }) {
 export default function Property({ params }) {
   const { id } = params;
   const [loading, setLoading] = useState(true);
-  const [property, setProperty] = useState("");
-  const [type, setType] = useState("incomes");
-  const [error, setError] = useState("");
+  const [property, setProperty] = useState('');
+  const [type, setType] = useState('incomes');
+  const [error, setError] = useState('');
 
   const fetchPropertyData = async () => {
     try {
@@ -214,9 +214,9 @@ export default function Property({ params }) {
   };
 
   const renderContent = (type) => {
-    if (type === "incomes") {
+    if (type === 'incomes') {
       return <Incomes id={id} supply={property?.supply} />;
-    } else if (type === "holders") {
+    } else if (type === 'holders') {
       return <Holders id={id} supply={property?.supply} />;
     } else {
       return <Inscriptions id={id} />;
@@ -226,6 +226,8 @@ export default function Property({ params }) {
   useEffect(() => {
     fetchPropertyData(id);
   }, []);
+
+  console.log(property);
 
   return (
     <main className="container mx-auto py-4">
@@ -252,17 +254,17 @@ export default function Property({ params }) {
                   height={120}
                 ></Image>
 
-                <div>
+                <div className="w-full">
                   <div className="flex gap-2 divide-x divide-gray-400/50">
                     <p className="font-semibold text-2xl">{property.title}</p>
                     <div className="flex gap-2">
                       <div className="flex gap-2">
                         <a
                           className={`p-1 h-8 w-8 rounded-full main_btn flex justify-center items-center bg-white cs-border text-black hover:text-orange-500 active:bg-gray-200 active:text-white ml-2 ${
-                            !"/" && "bg-gray-600/80 cursor-not-allowed"
+                            !'/' && 'bg-gray-600/80 cursor-not-allowed'
                           }`}
                           target="_blank"
-                          href={"/"}
+                          href={'/'}
                           onClick={(e) => {
                             e.stopPropagation();
                           }}
@@ -271,10 +273,10 @@ export default function Property({ params }) {
                         </a>
                         <a
                           className={`p-1 h-8 w-8 rounded-full main_btn flex justify-center items-center bg-white cs-border text-black hover:text-orange-500 active:bg-gray-200 active:text-white ${
-                            !"/" && "bg-gray-600/80 cursor-not-allowed"
+                            !'/' && 'bg-gray-600/80 cursor-not-allowed'
                           }`}
                           target="_blank"
-                          href={"/"}
+                          href={'/'}
                           onClick={(e) => {
                             e.stopPropagation();
                           }}
@@ -283,10 +285,10 @@ export default function Property({ params }) {
                         </a>
                         <a
                           className={`p-1 h-8 w-8 rounded-full main_btn flex justify-center items-center bg-white cs-border text-black hover:text-orange-500 active:bg-gray-200 active:text-white ${
-                            !"/" && "bg-gray-600/80 cursor-not-allowed"
+                            !'/' && 'bg-gray-600/80 cursor-not-allowed'
                           }`}
                           target="_blank"
-                          href={"/"}
+                          href={'/'}
                           onClick={(e) => {
                             e.stopPropagation();
                           }}
@@ -301,17 +303,27 @@ export default function Property({ params }) {
                   </p>
 
                   <div className="gap-2 grid grid-cols-2 sm:grid-cols-4 sm:gap-3">
-                    <div className="px-2 flex justify-end sm:justify-start">
+                    <div className="flex justify-end sm:justify-start">
                       <div className="flex gap-2 items-center">
                         <div className="font-semibold flex gap-1 items-center justify-end">
-                          {property.supply}
+                          {property.sold}/{property.supply}
                         </div>
-                        <p className="text-sm text-orange-500 font-semibold text-end">
-                          Supply
-                        </p>
+                        <span className="text-sm text-orange-500 font-semibold text-end">
+                          (Supply)
+                        </span>
                       </div>
                     </div>
                   </div>
+
+                  <div className="bg-gray-100 w-full rounded-full mt-1">
+                    <div
+                      style={{ width: `${(property.sold / property.supply) * 100}%` }}
+                      className={`rounded-full bg-green-500 h-[10px]`}
+                    ></div>
+                  </div>
+                  <span className="text-sm">
+                    ({((property.sold / property.supply) * 100).toFixed(2)}%)
+                  </span>
                 </div>
               </div>
             </>
@@ -327,30 +339,30 @@ export default function Property({ params }) {
         <div className="bg-white p-2 flex w-fit rounded-md gap-2 text-sm mt-4">
           <button
             className={`px-2 rounded-md ${
-              type == "incomes" && "bg-orange-100 border border-orange-200"
+              type == 'incomes' && 'bg-orange-100 border border-orange-200'
             } py-1`}
             onClick={() => {
-              setType("incomes");
+              setType('incomes');
             }}
           >
             Income
           </button>
           <button
             className={`px-2 rounded-md ${
-              type == "holders" && "bg-orange-100 border border-orange-200"
+              type == 'holders' && 'bg-orange-100 border border-orange-200'
             } py-1`}
             onClick={() => {
-              setType("holders");
+              setType('holders');
             }}
           >
             Holders
           </button>
           <button
             className={`px-2 rounded-md ${
-              type == "inscriptions" && "bg-orange-100 border border-orange-200"
+              type == 'inscriptions' && 'bg-orange-100 border border-orange-200'
             } py-1`}
             onClick={() => {
-              setType("inscriptions");
+              setType('inscriptions');
             }}
           >
             Shares
